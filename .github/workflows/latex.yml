@@ -1,26 +1,29 @@
-name: Compile LaTeX
+name: Compile and Release
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    tags:
+      - 'v*'
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Compile LaTeX document
+      - name: Compile LaTeX
         uses: xu-cheng/latex-action@v3
         with:
           root_file: test.tex
 
-      - name: Upload PDF artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload PDF to Release
+        uses: softprops/action-gh-release@v2
         with:
-          name: compiled-pdf
-          path: test.pdf
+          files: test.pdf
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          body: "Compiled PDF for ${{ github.ref_name }}"
